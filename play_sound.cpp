@@ -1,114 +1,8 @@
-/*#include <iostream>
-#include <Windows.h>
-#include <map>
-#include <thread>
-#include <vector>
-#include <queue>
-
-#pragma comment(lib, "winmm.lib")
-
-using namespace std;
-
-//ÏÔ¶øÒ×¼û£¬ÏÂÃæÕâ¸ömapÊÇChatGPT±àĞ´µÄ
-map<int, int> noteToMidi = {
-    {1, 46}, //do
-    {2, 48}, //re
-    {3, 50}, //mi
-    {4, 52}, //fa
-    {5, 54}, //so
-    {6, 56}, //la
-    {7, 58},//ti
-    {8, 60},//do
-    {9, 62},//re
-    {10, 64},//mi
-    {11, 66},//fa
-    {12, 68},//so
-    {13, 70},//la
-    {14, 72},//ti
-    {15, 74},//do
-    {16, 76},//re
-    {17, 78},//mi
-    {18, 80},//fa
-    {19, 82},//so
-    {20, 84},//la
-    {21, 86},//ti
-    {22, 88},//do
-};
-
-//ÏÔ¶øÒ×¼û£¬ÏÂÃæÕâ¸öº¯ÊıÊÇChatGPT±àĞ´µÄ
-void play_sound(int noteValue, int duration) {
-    HMIDIOUT handle;
-    midiOutOpen(&handle, 0, 0, 0, CALLBACK_NULL);
-
-    int volume = 0x7F; // ÒôÁ¿£¨0-127£©
-
-    int midiValue = noteToMidi[noteValue];
-    int midiMessage = (volume << 16) + (midiValue << 8) + 0x90; // MIDI Note On ÏûÏ¢
-
-    midiOutShortMsg(handle, midiMessage);
-
-    Sleep(duration);
-
-    midiOutShortMsg(handle, (volume << 16) + (midiValue << 8) + 0x80);
-
-    midiOutClose(handle);
-}
-
-void play_sound_chord(queue<int>& chordQueue, queue<int>& durationQueue) {
-    while (!chordQueue.empty()) {
-        int noteValue = chordQueue.front();
-        int noteDuration = durationQueue.front();
-        chordQueue.pop();
-        durationQueue.pop();
-        play_sound(noteValue, noteDuration);
-    }
-}
-
-void p(string name,int time) {
-    if (name == "A") {
-        play_sound(8, time);
-    }
-    if (name == "S") {
-        play_sound(9, time);
-    }
-    if (name == "D") {
-        play_sound(10, time);
-    }
-    if (name == "F") {
-        play_sound(11, time);
-    }
-    if (name == "G") {
-        play_sound(12, time);
-    }
-    if (name == "H") {
-        play_sound(13, time);
-    }
-    if (name == "J") {
-        play_sound(14, time);
-    }
-}
-
-int main() {
-    p("A", 500);
-    p("S", 500);
-    p("D", 500);
-    queue<int> chordQueue;
-    queue<int> durationQueue;
-    // Ïò¶ÓÁĞÌí¼ÓÒô·ûºÍ³ÖĞøÊ±¼ä
-    chordQueue.push(8); // 8´ú±ído
-    chordQueue.push(9); // 9´ú±íre
-    durationQueue.push(500); // ³ÖĞøÊ±¼ä
-    durationQueue.push(500);
-    thread th1(play_sound_chord, ref(chordQueue), ref(durationQueue));
-    th1.join(); // µÈ´ıÏß³Ì½áÊø
-    return 0;
-}
-
-*/
 #include <iostream>
 #include <Windows.h>
 #include <map>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 #include <queue>
 #include "MusicNote.h"
@@ -117,7 +11,9 @@ int main() {
 
 using namespace std;
 
-//ÏÔ¶øÒ×¼û£¬ÏÂÃæÕâ¸ömapÊÇChatGPT±àĞ´µÄ
+HMIDIOUT handle;
+
+//æ˜¾è€Œæ˜“è§ï¼Œä¸‹é¢è¿™ä¸ªmapæ˜¯ChatGPTç¼–å†™çš„
 map<int, int> noteToMidi = {
     {1, 46}, //do
     {2, 48}, //re
@@ -143,23 +39,25 @@ map<int, int> noteToMidi = {
     {22, 88},//do
 };
 
-//ÏÔ¶øÒ×¼û£¬ÏÂÃæÕâ¸öº¯ÊıÊÇChatGPT±àĞ´µÄ
+//æ˜¾è€Œæ˜“è§ï¼Œä¸‹é¢è¿™ä¸ªå‡½æ•°æ˜¯ChatGPTç¼–å†™çš„
 void play_sound(int noteValue, int duration) {
-    HMIDIOUT handle;
+    //HMIDIOUT handle;
     midiOutOpen(&handle, 0, 0, 0, CALLBACK_NULL);
 
-    int volume = 0x7F; // ÒôÁ¿£¨0-127£©
+    int volume = 0x7F; // éŸ³é‡ï¼ˆ0-127ï¼‰
 
     int midiValue = noteToMidi[noteValue];
-    int midiMessage = (volume << 16) + (midiValue << 8) + 0x90; // MIDI Note On ÏûÏ¢
 
+    int midiMessage = (volume << 16) + (midiValue << 8) + 0x90; // MIDI Note On æ¶ˆæ¯
+    midiOutClose(handle);
     midiOutShortMsg(handle, midiMessage);
+    
 
     Sleep(duration);
 
     midiOutShortMsg(handle, (volume << 16) + (midiValue << 8) + 0x80);
 
-    midiOutClose(handle);
+    //midiOutClose(handle);
 }
 
 void play_sound_chord(queue<int>& chordQueue, queue<int>& durationQueue) {
@@ -172,32 +70,51 @@ void play_sound_chord(queue<int>& chordQueue, queue<int>& durationQueue) {
     }
 }
 
-/*void p(string name,int time) {
-    if (name == "A") {
-        play_sound(8, time);
-    }
-    if (name == "S") {
-        play_sound(9, time);
-    }
-    if (name == "D") {
-        play_sound(10, time);
-    }
-    if (name == "F") {
-        play_sound(11, time);
-    }
-    if (name == "G") {
-        play_sound(12, time);
-    }
-    if (name == "H") {
-        play_sound(13, time);
-    }
-    if (name == "J") {
-        play_sound(14, time);
-    }
-}*/
 
-int main() {
-    play_sound(A, 500);
-    return 0;
+
+unordered_map<char, int> charToIntMap = {
+    {'Z', 1}, {'X', 2}, {'C', 3}, {'V', 4}, {'B', 5}, {'N', 6}, {'M', 7},
+    {'A', 8}, {'S', 9}, {'D', 10}, {'F', 11}, {'G', 12}, {'H', 13}, {'J', 14},
+    {'Q', 15}, {'W', 16}, {'E', 17}, {'R', 18}, {'T', 19}, {'Y', 20}, {'U', 21}
+};
+
+int stringToInt(const string& input) {
+    int result = 0;
+
+    for (char c : input) {
+        auto it = charToIntMap.find(c);
+        if (it != charToIntMap.end()) {
+            result = result * 100 + it->second;
+        }
+        else {
+            cout << "ERR" << endl;
+            return 0;
+        }
+    }
+
+    return result;
 }
 
+int main() {
+    string a = "DDFGGFDSAASDDSS";
+    int testtime[100] = { 500,500,500,500,500,500,500,500,500,500,500,500,750,250,1000 };
+    queue<int> time;
+    queue<string> b;
+    for (int i = 0; i < 14; i++) {
+        time.push(testtime[i]);
+    }
+    for (char c : a) {
+        string letter(1, c); // å°†å­—ç¬¦è½¬æ¢ä¸ºå­—ç¬¦ä¸²
+        b.push(letter);
+    }
+    cout << "1";
+    while (!b.empty()) {
+        //midiOutClose(handle);
+        cout << b.front() << " ";
+        cout << time.front() << endl;
+        play_sound(stringToInt(b.front()), time.front());
+        b.pop();
+        time.pop();
+    }
+    return 0;
+}
